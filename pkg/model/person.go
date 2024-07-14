@@ -6,3 +6,8 @@ type Person struct {
 	Password string `json:"password" binding:"required" db:"password"`
 	Role     string `json:"role" db:"role"`
 }
+
+type PersonWithChatRoomRole struct {
+	Person   *Person
+	RoomRole string `db:"role"`
+}

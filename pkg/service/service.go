@@ -9,12 +9,17 @@ type AuthService interface {
 	Registration(person *model.Person) (int, error)
 	GenerateToken(username, password string) (string, error)
 	ParseToken(token string) (int, error)
+	GetPersonById(id int) (model.Person, error)
 }
 
 type ChatRoomService interface {
 	CreateChatRoom(fromPersonId, toPersonId int) error
 	GetAllChatRoom(personId int) ([]model.ChatRoom, error)
 	GetByPersonIdAndChatRoomId(personId, charRoomId int) (model.ChatRoom, error)
+	GetAllPersonByChatRoomId(roomId int) ([]model.PersonWithChatRoomRole, error)
+	DeleteChatRoom(personId, roomId int) (bool, error)
+	ExitFromChatRoom(personId, roomId int) error
+	DeletePersonFromChatRoom(personId, personForDeletingId, roomId int) error
 }
 
 type MessageService interface {

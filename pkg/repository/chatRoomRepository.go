@@ -24,9 +24,9 @@ func (r *ChatRoomRepositoryImpl) CreateChatRoom(name string) (int, error) {
 	return id, nil
 }
 
-func (r *ChatRoomRepositoryImpl) AddPersonToChatRoom(personId int, chatRoomId int) error {
-	query := `INSERT INTO person_chat_room(person_id, chat_room_id) VALUES ($1,$2)`
-	if _, err := r.db.Exec(query, personId, chatRoomId); err != nil {
+func (r *ChatRoomRepositoryImpl) AddPersonToChatRoom(personId int, chatRoomId int, role string) error {
+	query := `INSERT INTO person_chat_room(person_id, chat_room_id,role) VALUES ($1,$2,$3)`
+	if _, err := r.db.Exec(query, personId, chatRoomId, role); err != nil {
 		return err
 	}
 	return nil
@@ -48,4 +48,24 @@ func (r *ChatRoomRepositoryImpl) GetByPersonIdAndChatRoomId(personId, charRoomId
 	var res model.ChatRoom
 	err := r.db.Get(&res, query, personId, charRoomId)
 	return res, err
+}
+
+func (r *ChatRoomRepositoryImpl) GetAllPersonByChatRoomId(roomId int) ([]model.PersonWithChatRoomRole, error) {
+	query := `SELECT person.id as "person.id",username as "person.username",password as "person.password",person.role 
+    as "person.role",person_chat_room.role FROM person JOIN person_chat_room ON person.id = person_chat_room.person_id WHERE chat_room_id=$1`
+	var res []model.PersonWithChatRoomRole
+	err := r.db.Select(&res, query, roomId)
+	return res, err
+}
+
+func (r *ChatRoomRepositoryImpl) DeletePersonFromChatRoom(personId, roomId int) error {
+	query := `DELETE FROM person_chat_room WHERE person_id=$1 AND chat_room_id=$2`
+	_, err := r.db.Exec(query, personId, roomId)
+	return err
+}
+
+func (r *ChatRoomRepositoryImpl) DeleteChatRoomById(roomId int) error {
+	query := `DELETE FROM chat_room WHERE id=$1`
+	_, err := r.db.Exec(query, roomId)
+	return err
 }

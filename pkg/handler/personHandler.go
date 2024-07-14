@@ -61,23 +61,23 @@ func (h *Handler) personIdentity(c *gin.Context) {
 		return
 	}
 
-	userId, err := h.service.AuthService.ParseToken(headerParts[1])
+	personId, err := h.service.AuthService.ParseToken(headerParts[1])
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	c.Set(personCtx, userId)
+	c.Set(personCtx, personId)
 }
 
 func getPersonId(c *gin.Context) (int, error) {
 	id, ok := c.Get(personCtx)
 	if !ok {
-		return 0, errors.New("user id not found")
+		return 0, errors.New("person id not found")
 	}
 	idInt, ok := id.(int)
 	if !ok {
-		return 0, errors.New("user id is of invalid type")
+		return 0, errors.New("person id is of invalid type")
 	}
 
 	return idInt, nil

@@ -13,9 +13,12 @@ type PersonRepository interface {
 
 type ChatRoomRepository interface {
 	CreateChatRoom(name string) (int, error)
-	AddPersonToChatRoom(personId int, chatRoomId int) error
+	AddPersonToChatRoom(personId int, chatRoomId int, role string) error
 	GetAllChatRoom(personId int) ([]model.ChatRoom, error)
 	GetByPersonIdAndChatRoomId(personId, charRoomId int) (model.ChatRoom, error)
+	GetAllPersonByChatRoomId(roomId int) ([]model.PersonWithChatRoomRole, error)
+	DeletePersonFromChatRoom(personId, roomId int) error
+	DeleteChatRoomById(roomId int) error
 }
 
 type MessageRepository interface {

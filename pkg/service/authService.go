@@ -13,7 +13,6 @@ import (
 const (
 	salt       = "hjqrhjqw124617ajfhajs"
 	signingKey = "sad"
-	baseRole   = "ROLE_USER"
 )
 
 type AuthServiceImpl struct {
@@ -32,7 +31,7 @@ func NewAuthServiceImpl(repo *repository.Repository) *AuthServiceImpl {
 func (s *AuthServiceImpl) Registration(person *model.Person) (int, error) {
 	passwordHash := generatePasswordHash(person.Password)
 	person.Password = passwordHash
-	person.Role = baseRole
+	person.Role = model.RoleUser
 	id, err := s.repo.PersonRepository.CreatePerson(person)
 	if err != nil {
 		return 0, err
@@ -75,6 +74,10 @@ func (s *AuthServiceImpl) ParseToken(accessToken string) (int, error) {
 	}
 
 	return claims.UserId, nil
+}
+
+func (s *AuthServiceImpl) GetPersonById(id int) (model.Person, error) {
+	return s.repo.PersonRepository.GetPersonById(id)
 }
 
 func generatePasswordHash(password string) string {
