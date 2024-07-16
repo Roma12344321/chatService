@@ -50,14 +50,6 @@ func (r *ChatRoomRepositoryImpl) GetByPersonIdAndChatRoomId(personId, charRoomId
 	return res, err
 }
 
-func (r *ChatRoomRepositoryImpl) GetAllPersonByChatRoomId(roomId int) ([]model.PersonWithChatRoomRole, error) {
-	query := `SELECT person.id as "person.id",username as "person.username",password as "person.password",person.role 
-    as "person.role",person_chat_room.role FROM person JOIN person_chat_room ON person.id = person_chat_room.person_id WHERE chat_room_id=$1`
-	var res []model.PersonWithChatRoomRole
-	err := r.db.Select(&res, query, roomId)
-	return res, err
-}
-
 func (r *ChatRoomRepositoryImpl) DeletePersonFromChatRoom(personId, roomId int) error {
 	query := `DELETE FROM person_chat_room WHERE person_id=$1 AND chat_room_id=$2`
 	_, err := r.db.Exec(query, personId, roomId)

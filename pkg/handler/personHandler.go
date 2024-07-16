@@ -46,24 +46,24 @@ func (h *Handler) logIn(c *gin.Context) {
 func (h *Handler) personIdentity(c *gin.Context) {
 	header := c.GetHeader(authHeader)
 	if header == "" {
-		c.JSON(http.StatusBadRequest, "empty auth header")
+		c.AbortWithStatusJSON(http.StatusBadRequest, "empty auth header")
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		c.JSON(http.StatusUnauthorized, "invalid auth header")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, "invalid auth header")
 		return
 	}
 
 	if len(headerParts[1]) == 0 {
-		c.JSON(http.StatusUnauthorized, "token is empty")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, "token is empty")
 		return
 	}
 
 	personId, err := h.service.AuthService.ParseToken(headerParts[1])
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, err.Error())
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 		return
 	}
 

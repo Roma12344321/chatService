@@ -9,6 +9,8 @@ type PersonRepository interface {
 	CreatePerson(person *model.Person) (int, error)
 	GetPerson(username, password string) (*model.Person, error)
 	GetPersonById(id int) (model.Person, error)
+	GetAllPersonByChatRoomId(roomId int) ([]model.PersonWithChatRoomRole, error)
+	GetPersonByIdAndChatRoomId(personId, roomId int) (model.PersonWithChatRoomRole, error)
 }
 
 type ChatRoomRepository interface {
@@ -16,7 +18,6 @@ type ChatRoomRepository interface {
 	AddPersonToChatRoom(personId int, chatRoomId int, role string) error
 	GetAllChatRoom(personId int) ([]model.ChatRoom, error)
 	GetByPersonIdAndChatRoomId(personId, charRoomId int) (model.ChatRoom, error)
-	GetAllPersonByChatRoomId(roomId int) ([]model.PersonWithChatRoomRole, error)
 	DeletePersonFromChatRoom(personId, roomId int) error
 	DeleteChatRoomById(roomId int) error
 }
@@ -24,6 +25,8 @@ type ChatRoomRepository interface {
 type MessageRepository interface {
 	CreateMessage(text string, personId, chatRoomId int) (int, error)
 	GetAllMessageForChatRoom(chatRoomId int) ([]model.Message, error)
+	DeleteMessageById(id int) error
+	GetMessageById(messageId int) (model.Message, error)
 }
 
 type Repository struct {

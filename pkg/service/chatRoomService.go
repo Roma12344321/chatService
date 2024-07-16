@@ -43,7 +43,7 @@ func (s *ChatRoomServiceImpl) GetByPersonIdAndChatRoomId(personId, charRoomId in
 }
 
 func (s *ChatRoomServiceImpl) GetAllPersonByChatRoomId(roomId int) ([]model.PersonWithChatRoomRole, error) {
-	return s.repo.ChatRoomRepository.GetAllPersonByChatRoomId(roomId)
+	return s.repo.PersonRepository.GetAllPersonByChatRoomId(roomId)
 }
 
 func (s *ChatRoomServiceImpl) DeleteChatRoom(personId, roomId int) (bool, error) {
@@ -65,7 +65,7 @@ func (s *ChatRoomServiceImpl) ExitFromChatRoom(personId, roomId int) error {
 	if err := s.repo.ChatRoomRepository.DeletePersonFromChatRoom(personId, roomId); err != nil {
 		return err
 	}
-	people, err := s.repo.ChatRoomRepository.GetAllPersonByChatRoomId(roomId)
+	people, err := s.repo.PersonRepository.GetAllPersonByChatRoomId(roomId)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (s *ChatRoomServiceImpl) DeletePersonFromChatRoom(personId, personForDeleti
 }
 
 func (s *ChatRoomServiceImpl) isPersonHasRole(personId, roomId int) (bool, error) {
-	people, err := s.repo.ChatRoomRepository.GetAllPersonByChatRoomId(roomId)
+	people, err := s.repo.PersonRepository.GetAllPersonByChatRoomId(roomId)
 	if err != nil {
 		return false, err
 	}

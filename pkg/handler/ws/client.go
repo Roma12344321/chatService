@@ -3,8 +3,10 @@ package ws
 import (
 	"bytes"
 	"chatService/pkg/service"
+	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -22,6 +24,8 @@ const (
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
+	postMethod     = "POST"
+	deleteMethod   = "DELETE"
 )
 
 var (
@@ -43,6 +47,11 @@ type Client struct {
 	service  *service.Service
 }
 
+type ReceivedMessage struct {
+	Method  string `json:"method"`
+	Content string `json:"content"`
+}
+
 func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
@@ -52,20 +61,59 @@ func (c *Client) readPump() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		_, message, err := c.conn.ReadMessage()
+		_, rawMessage, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		id, err := c.service.MessageService.CreateMessage(string(message), c.personId, c.roomId)
+		rawMessage = bytes.TrimSpace(bytes.Replace(rawMessage, newline, space, -1))
+		var resMessage ReceivedMessage
+		err = json.Unmarshal(rawMessage, &resMessage)
 		if err != nil {
-			log.Printf("error saving message: %v", err)
+			log.Printf("error unmarshaling rawMessage: %v", err)
+			break
 		}
-		c.hub.broadcast <- Message{Id: id, PersonId: c.personId, RoomId: c.roomId, Content: message}
+		if resMessage.Method == postMethod {
+			err = c.handlePostMethod(resMessage)
+			if err != nil {
+				break
+			}
+		} else if resMessage.Method == deleteMethod {
+			err = c.handleDeleteMethod(resMessage)
+			if err != nil {
+				break
+			}
+		} else {
+			break
+		}
 	}
+}
+
+func (c *Client) handlePostMethod(message ReceivedMessage) error {
+	id, err := c.service.MessageService.CreateMessage(message.Content, c.personId, c.roomId)
+	if err != nil {
+		log.Printf("error saving message: %v", err)
+		return err
+	}
+	c.hub.broadcast <- Message{Id: id, PersonId: c.personId, RoomId: c.roomId, Content: message.Content, Method: postMethod}
+	return nil
+}
+
+func (c *Client) handleDeleteMethod(message ReceivedMessage) error {
+	id, err := strconv.Atoi(message.Content)
+	if err != nil {
+		log.Printf("error read id: %v", err)
+		return err
+	}
+	err = c.service.MessageService.DeleteMessageById(c.personId, c.roomId, id)
+	if err != nil {
+		log.Printf("error deleting message: %v", err)
+		return err
+	}
+	c.hub.broadcast <- Message{Id: id, PersonId: c.personId, RoomId: c.roomId, Content: strconv.Itoa(id), Method: deleteMethod}
+	return nil
 }
 
 func (c *Client) writePump() {

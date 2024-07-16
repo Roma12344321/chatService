@@ -25,6 +25,7 @@ type ChatRoomService interface {
 type MessageService interface {
 	CreateMessage(text string, personId, chatRoomId int) (int, error)
 	GetAllMessageForChatRoom(chatRoomId int) ([]model.Message, error)
+	DeleteMessageById(personId, roomId, messageId int) error
 }
 
 type Service struct {

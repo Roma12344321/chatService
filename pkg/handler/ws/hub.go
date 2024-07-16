@@ -18,7 +18,8 @@ type Message struct {
 	Id       int    `json:"id"`
 	PersonId int    `json:"person_id"`
 	RoomId   int    `json:"room_id"`
-	Content  []byte `json:"content"`
+	Content  string `json:"content"`
+	Method   string `json:"method"`
 }
 
 func NewHub() *Hub {
