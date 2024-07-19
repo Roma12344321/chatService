@@ -3,6 +3,7 @@ package repository
 import (
 	"chatService/pkg/model"
 	"github.com/jmoiron/sqlx"
+	"time"
 )
 
 type PersonRepository interface {
@@ -23,8 +24,8 @@ type ChatRoomRepository interface {
 }
 
 type MessageRepository interface {
-	CreateMessage(text string, personId, chatRoomId int) (int, error)
-	GetAllMessageForChatRoom(chatRoomId int) ([]model.Message, error)
+	CreateMessage(message model.Message) (int, error)
+	GetAllMessageForChatRoom(personId, chatRoomId int, date time.Time, limit int) ([]model.Message, error)
 	DeleteMessageById(id int) error
 	GetMessageById(messageId int) (model.Message, error)
 }

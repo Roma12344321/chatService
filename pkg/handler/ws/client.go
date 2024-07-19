@@ -2,6 +2,7 @@ package ws
 
 import (
 	"bytes"
+	"chatService/pkg/model"
 	"chatService/pkg/service"
 	"encoding/json"
 	"log"
@@ -92,7 +93,7 @@ func (c *Client) readPump() {
 }
 
 func (c *Client) handlePostMethod(message ReceivedMessage) error {
-	id, err := c.service.MessageService.CreateMessage(message.Content, c.personId, c.roomId)
+	id, err := c.service.MessageService.CreateMessage(model.Message{Text: message.Content, Date: time.Now(), PersonId: c.personId, ChatRoomId: c.roomId})
 	if err != nil {
 		log.Printf("error saving message: %v", err)
 		return err

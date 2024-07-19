@@ -3,6 +3,7 @@ package service
 import (
 	"chatService/pkg/model"
 	"chatService/pkg/repository"
+	"time"
 )
 
 type AuthService interface {
@@ -17,14 +18,14 @@ type ChatRoomService interface {
 	GetAllChatRoom(personId int) ([]model.ChatRoom, error)
 	GetByPersonIdAndChatRoomId(personId, charRoomId int) (model.ChatRoom, error)
 	GetAllPersonByChatRoomId(roomId int) ([]model.PersonWithChatRoomRole, error)
-	DeleteChatRoom(personId, roomId int) (bool, error)
+	DeleteChatRoom(personId, roomId int) error
 	ExitFromChatRoom(personId, roomId int) error
 	DeletePersonFromChatRoom(personId, personForDeletingId, roomId int) error
 }
 
 type MessageService interface {
-	CreateMessage(text string, personId, chatRoomId int) (int, error)
-	GetAllMessageForChatRoom(chatRoomId int) ([]model.Message, error)
+	CreateMessage(message model.Message) (int, error)
+	GetAllMessageForChatRoom(personId, chatRoomId int, date time.Time, limit int) ([]model.Message, error)
 	DeleteMessageById(personId, roomId, messageId int) error
 }
 

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"chatService/pkg/model"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -28,7 +30,7 @@ func (h *Handler) addChatRoom(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	otherIdStr, ok := c.GetQuery("other_id")
+	otherIdStr, ok := c.GetQuery("person_id")
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "there must be other person id"})
 		return
@@ -63,14 +65,14 @@ func (h *Handler) deleteChatRoom(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ok, err = h.service.ChatRoomService.DeleteChatRoom(personId, roomId)
+	err = h.service.ChatRoomService.DeleteChatRoom(personId, roomId)
+	if errors.Is(err, model.NoRoleError) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "no role for this"})
+		return
+	}
 	if err != nil {
 		log.Printf("error deleting chat room: %s", err.Error())
 		c.JSON(http.StatusBadGateway, gin.H{"error": "server error"})
-		return
-	}
-	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "no role for this"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": "success deleting chat room"})
@@ -128,8 +130,13 @@ func (h *Handler) deletePersonFromChatRoom(c *gin.Context) {
 		return
 	}
 	err = h.service.ChatRoomService.DeletePersonFromChatRoom(personId, personForDeleting, roomId)
+	if errors.Is(err, model.NoRoleError) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "no role for this"})
+		return
+	}
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		log.Printf("error deleting person from chat room: %s", err.Error())
+		c.JSON(http.StatusBadGateway, gin.H{"error": "server error"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": "success deleting person from chat room"})

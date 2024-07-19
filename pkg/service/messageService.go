@@ -4,6 +4,7 @@ import (
 	"chatService/pkg/model"
 	"chatService/pkg/repository"
 	"errors"
+	"time"
 )
 
 type MessageServiceImpl struct {
@@ -14,12 +15,12 @@ func NewMessageServiceImpl(repo *repository.Repository) *MessageServiceImpl {
 	return &MessageServiceImpl{repo: repo}
 }
 
-func (s *MessageServiceImpl) CreateMessage(text string, personId, chatRoomId int) (int, error) {
-	return s.repo.MessageRepository.CreateMessage(text, personId, chatRoomId)
+func (s *MessageServiceImpl) CreateMessage(message model.Message) (int, error) {
+	return s.repo.MessageRepository.CreateMessage(message)
 }
 
-func (s *MessageServiceImpl) GetAllMessageForChatRoom(chatRoomId int) ([]model.Message, error) {
-	return s.repo.MessageRepository.GetAllMessageForChatRoom(chatRoomId)
+func (s *MessageServiceImpl) GetAllMessageForChatRoom(personId, chatRoomId int, date time.Time, limit int) ([]model.Message, error) {
+	return s.repo.MessageRepository.GetAllMessageForChatRoom(personId, chatRoomId, date, limit)
 }
 
 func (s *MessageServiceImpl) DeleteMessageById(personId, roomId, messageId int) error {

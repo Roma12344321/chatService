@@ -32,6 +32,6 @@ func (h *Handler) handleWs(hub *ws.Hub) func(c *gin.Context) {
 			c.JSON(http.StatusBadGateway, gin.H{"error": "server error"})
 			return
 		}
-		ws.ServeWs(hub, c.Writer, c.Request, personId, roomId, h.service)
+		ws.ServeWs(hub, c.Writer, c.Request, personId, room.Id, h.service)
 	}
 }

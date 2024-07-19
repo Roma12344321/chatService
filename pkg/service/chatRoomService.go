@@ -3,7 +3,6 @@ package service
 import (
 	"chatService/pkg/model"
 	"chatService/pkg/repository"
-	"errors"
 )
 
 type ChatRoomServiceImpl struct {
@@ -19,7 +18,11 @@ func (s *ChatRoomServiceImpl) CreateChatRoom(fromPersonId, toPersonId int) error
 	if err != nil {
 		return err
 	}
-	roomId, err := s.repo.ChatRoomRepository.CreateChatRoom(toPerson.Username)
+	fromPerson, err := s.repo.PersonRepository.GetPersonById(fromPersonId)
+	if err != nil {
+		return err
+	}
+	roomId, err := s.repo.ChatRoomRepository.CreateChatRoom("Chat " + toPerson.Username + ", " + fromPerson.Username)
 	if err != nil {
 		return err
 	}
@@ -46,19 +49,19 @@ func (s *ChatRoomServiceImpl) GetAllPersonByChatRoomId(roomId int) ([]model.Pers
 	return s.repo.PersonRepository.GetAllPersonByChatRoomId(roomId)
 }
 
-func (s *ChatRoomServiceImpl) DeleteChatRoom(personId, roomId int) (bool, error) {
+func (s *ChatRoomServiceImpl) DeleteChatRoom(personId int, roomId int) error {
 	ok, err := s.isPersonHasRole(personId, roomId)
 	if err != nil {
-		return false, err
+		return err
 	}
 	if ok {
 		err := s.repo.ChatRoomRepository.DeleteChatRoomById(roomId)
 		if err != nil {
-			return false, err
+			return err
 		}
-		return true, nil
+		return nil
 	}
-	return false, nil
+	return model.NoRoleError
 }
 
 func (s *ChatRoomServiceImpl) ExitFromChatRoom(personId, roomId int) error {
@@ -83,7 +86,7 @@ func (s *ChatRoomServiceImpl) DeletePersonFromChatRoom(personId, personForDeleti
 	if ok {
 		return s.repo.DeletePersonFromChatRoom(personForDeletingId, roomId)
 	}
-	return errors.New("no role")
+	return model.NoRoleError
 }
 
 func (s *ChatRoomServiceImpl) isPersonHasRole(personId, roomId int) (bool, error) {

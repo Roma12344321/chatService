@@ -34,6 +34,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			room.DELETE("/exit", h.exitFromChatRoom)
 			room.DELETE("/person", h.deletePersonFromChatRoom)
 		}
+		message := api.Group("/message")
+		{
+			message.GET("", h.getAllMessage)
+		}
 	}
 	return router
 }
