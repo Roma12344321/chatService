@@ -44,7 +44,7 @@ func initConfig() {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %s", err)
+		log.Fatalf("Error reading configs file: %s", err)
 	}
 }
 
